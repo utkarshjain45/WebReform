@@ -1,0 +1,52 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
+spring:
+  application:
+    name: webreform-backend
+
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/webreform_db}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    validate-on-migrate: false
+    locations: classpath:db/migration
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+optimizer:
+  service:
+    url: ${OPTIMIZER_SERVICE_URL:http://localhost:8000}
+
+crawler:
+  user-agent: "WebReform-Crawler/1.0 (+https://webreform.io)"
+  connect-timeout-ms: 6000
+  read-timeout-ms: 8000
+  max-body-size-bytes: 2097152 # 2MB
+  default-max-pages: 30
+  default-max-depth: 3
+  max-allowed-pages: 200
+  max-allowed-depth: 8
