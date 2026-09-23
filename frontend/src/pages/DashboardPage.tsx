@@ -14,8 +14,10 @@ import { api, ApiError } from "@/lib/api";
 import type { Website, OptimizationRun } from "@/types";
 import { LoadingState } from "@/components/ui/LoadingState";
 import { ErrorState } from "@/components/ui/ErrorState";
+import { useAccessGuard } from "@/context/AccessGuardContext";
 
 export const DashboardPage: React.FC = () => {
+  const { requireAccess } = useAccessGuard();
   const navigate = useNavigate();
   const [websites, setWebsites] = useState<Website[]>([]);
   const [runs, setRuns] = useState<OptimizationRun[]>([]);
@@ -71,10 +73,12 @@ export const DashboardPage: React.FC = () => {
     }
 
     setQuickError(null);
-    setQuickStep("registering");
 
-    try {
-      // 1. Find existing or register new
+    requireAccess(async () => {
+      setQuickStep("registering");
+
+      try {
+        // 1. Find existing or register new
       let site = websites.find(
         (w) => w.baseUrl.toLowerCase() === targetUrl.toLowerCase() ||
                w.baseUrl.toLowerCase() === `${targetUrl}/`.toLowerCase()
@@ -142,7 +146,8 @@ export const DashboardPage: React.FC = () => {
       setQuickError(err instanceof Error ? err.message : "Failed to run website reform.");
       setQuickStep("idle");
     }
-  };
+  });
+};
 
   const completedRuns = runs.filter((r) => r.status === "COMPLETED");
   const avgGain = completedRuns.length > 0

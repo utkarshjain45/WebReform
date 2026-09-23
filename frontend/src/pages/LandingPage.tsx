@@ -17,8 +17,11 @@ import { FrictionDepthScrubber } from "@/components/landing/FrictionDepthScrubbe
 import { ResearchSection } from "@/components/landing/ResearchSection";
 import { AboutSection } from "@/components/landing/AboutSection";
 
+import { useAccessGuard } from "@/context/AccessGuardContext";
+
 export const LandingPage: React.FC = () => {
   const navigate = useNavigate();
+  const { requireAccess } = useAccessGuard();
   const [urlInput, setUrlInput] = useState<string>("");
 
   const handleQuickScan = (e: React.FormEvent) => {
@@ -28,7 +31,9 @@ export const LandingPage: React.FC = () => {
       navigate("/dashboard");
       return;
     }
-    navigate(`/optimize?url=${encodeURIComponent(raw)}`);
+    requireAccess(() => {
+      navigate(`/optimize?url=${encodeURIComponent(raw)}`);
+    });
   };
 
   return (

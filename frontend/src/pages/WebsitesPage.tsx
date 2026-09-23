@@ -17,8 +17,10 @@ import type { Website, Page, OptimizationRun } from "@/types";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { LoadingState } from "@/components/ui/LoadingState";
+import { useAccessGuard } from "@/context/AccessGuardContext";
 
 export const WebsitesPage: React.FC = () => {
+  const { requireAccess } = useAccessGuard();
   const [websites, setWebsites] = useState<Website[]>([]);
   const [websitePages, setWebsitePages] = useState<Record<number, Page[]>>({});
   const [runs, setRuns] = useState<OptimizationRun[]>([]);
@@ -31,6 +33,11 @@ export const WebsitesPage: React.FC = () => {
   const [newSiteUrl, setNewSiteUrl] = useState<string>("");
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [modalError, setModalError] = useState<string | null>(null);
+
+  // Delete Confirmation State
+  const [deleteModalWebsite, setDeleteModalWebsite] = useState<{ id: number; name: string } | null>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const fetchWebsites = async () => {
     setLoading(true);
@@ -69,7 +76,7 @@ export const WebsitesPage: React.FC = () => {
     fetchWebsites();
   }, []);
 
-  const handleCreateWebsite = async (e: React.FormEvent) => {
+  const handleCreateWebsite = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newSiteName.trim() || !newSiteUrl.trim()) {
       setModalError("Please provide both website name and valid HTTP/HTTPS base URL.");
@@ -87,38 +94,55 @@ export const WebsitesPage: React.FC = () => {
       return;
     }
 
-    setSubmitting(true);
-    setModalError(null);
-    try {
-      await api.createWebsite({
-        name: newSiteName.trim(),
-        baseUrl: newSiteUrl.trim(),
-      });
-      setIsModalOpen(false);
-      setNewSiteName("");
-      setNewSiteUrl("");
-      await fetchWebsites();
-    } catch (err) {
-      if (err instanceof ApiError) {
-        setModalError(err.message);
-      } else {
-        setModalError("Failed to register website.");
+    requireAccess(async () => {
+      setSubmitting(true);
+      setModalError(null);
+      try {
+        await api.createWebsite({
+          name: newSiteName.trim(),
+          baseUrl: newSiteUrl.trim(),
+        });
+        setIsModalOpen(false);
+        setNewSiteName("");
+        setNewSiteUrl("");
+        await fetchWebsites();
+      } catch (err) {
+        if (err instanceof ApiError) {
+          setModalError(err.message);
+        } else {
+          setModalError("Failed to register website.");
+        }
+      } finally {
+        setSubmitting(false);
       }
-    } finally {
-      setSubmitting(false);
-    }
+    });
   };
 
-  const handleDeleteWebsite = async (id: number, name: string) => {
-    if (!window.confirm(`Are you sure you want to delete "${name}"? All crawled pages and optimization runs for this website will be permanently removed.`)) {
-      return;
-    }
-    try {
-      await api.deleteWebsite(id);
-      await fetchWebsites();
-    } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to delete website.");
-    }
+  const openDeleteModal = (id: number, name: string) => {
+    setDeleteError(null);
+    setDeleteModalWebsite({ id, name });
+  };
+
+  const confirmDeleteWebsite = () => {
+    if (!deleteModalWebsite) return;
+    const { id } = deleteModalWebsite;
+    requireAccess(async () => {
+      setDeletingId(id);
+      setDeleteError(null);
+      try {
+        await api.deleteWebsite(id);
+        // Optimistically remove from state immediately
+        setWebsites((prev) => prev.filter((w) => w.id !== id));
+        setDeleteModalWebsite(null);
+        // Sync full state in background
+        await fetchWebsites();
+      } catch (err) {
+        console.error("Failed to delete website:", err);
+        setDeleteError(err instanceof Error ? err.message : "Failed to delete website. Please try again.");
+      } finally {
+        setDeletingId(null);
+      }
+    });
   };
 
   return (
@@ -271,11 +295,16 @@ export const WebsitesPage: React.FC = () => {
                             Reform
                           </Link>
                           <button
-                            onClick={() => handleDeleteWebsite(site.id, site.name)}
-                            className="inline-flex items-center gap-1 rounded border border-rose-200 bg-rose-50/60 px-2 py-1.5 text-xs font-medium text-rose-600 hover:bg-rose-100 hover:text-rose-700 transition-colors"
+                            onClick={() => openDeleteModal(site.id, site.name)}
+                            disabled={deletingId === site.id}
+                            className="inline-flex items-center gap-1 rounded border border-rose-200 bg-rose-50/60 px-2 py-1.5 text-xs font-medium text-rose-600 hover:bg-rose-100 hover:text-rose-700 transition-colors disabled:opacity-50 cursor-pointer"
                             title="Delete Website"
                           >
-                            <Trash2 className="w-3.5 h-3.5" />
+                            {deletingId === site.id ? (
+                              <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                            ) : (
+                              <Trash2 className="w-3.5 h-3.5" />
+                            )}
                           </button>
                         </div>
                       </td>
@@ -357,6 +386,63 @@ export const WebsitesPage: React.FC = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteModalWebsite && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 animate-fade-in">
+          <div className="w-full max-w-md rounded-2xl border border-rose-100 bg-white p-6 shadow-2xl space-y-4 animate-scale-in">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-rose-50 border border-rose-200 text-rose-600 flex items-center justify-center">
+                  <Trash2 className="w-4 h-4" />
+                </div>
+                Delete Target Website
+              </h2>
+              <button
+                onClick={() => setDeleteModalWebsite(null)}
+                disabled={deletingId !== null}
+                className="rounded-lg p-1 text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer disabled:opacity-50"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {deleteError && (
+              <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-xs text-rose-700">
+                {deleteError}
+              </div>
+            )}
+
+            <p className="text-sm text-slate-600 leading-relaxed">
+              Are you sure you want to permanently delete{" "}
+              <span className="font-semibold text-slate-900">
+                &ldquo;{deleteModalWebsite.name}&rdquo;
+              </span>
+              ? All crawled pages, link topology graphs, and navigation reform runs for this website will be removed permanently.
+            </p>
+
+            <div className="flex justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setDeleteModalWebsite(null)}
+                disabled={deletingId !== null}
+                className="px-4 py-2 rounded-lg border border-slate-200 bg-white text-xs font-medium text-slate-700 hover:bg-slate-50 transition-colors shadow-sm cursor-pointer disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={confirmDeleteWebsite}
+                disabled={deletingId !== null}
+                className="px-4 py-2 rounded-lg bg-rose-600 text-xs font-semibold text-white hover:bg-rose-500 transition-colors disabled:opacity-50 inline-flex items-center gap-2 shadow-sm cursor-pointer"
+              >
+                {deletingId !== null && <RefreshCw className="w-3.5 h-3.5 animate-spin" />}
+                {deletingId !== null ? "Deleting..." : "Delete Website"}
+              </button>
+            </div>
           </div>
         </div>
       )}

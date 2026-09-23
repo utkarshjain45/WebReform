@@ -9,15 +9,15 @@ services:
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-webreform_db}
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-postgres}"
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - webreform-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-webreform_db}"]
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -36,7 +36,7 @@ services:
       - "${OPTIMIZER_PORT:-8000}:8000"
     environment:
       - ENVIRONMENT=${ENVIRONMENT:-production}
-      - PORT=8000
+      - PORT=${OPTIMIZER_PORT:-8000}
       - WORKERS=${OPTIMIZER_WORKERS:-2}
       - LOG_LEVEL=${LOG_LEVEL:-info}
       - CORS_ORIGINS=${CORS_ALLOWED_ORIGINS:-*}
@@ -67,12 +67,20 @@ services:
         condition: service_healthy
     environment:
       - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-docker}
-      - PORT=8080
-      - DB_URL=jdbc:postgresql://postgres:5432/${POSTGRES_DB:-webreform_db}
-      - DB_USERNAME=${POSTGRES_USER:-postgres}
-      - DB_PASSWORD=${POSTGRES_PASSWORD:-postgres}
-      - OPTIMIZER_SERVICE_URL=http://optimizer:8000
+      - PORT=${BACKEND_PORT:-8080}
+      - DB_URL=${DB_URL:-jdbc:postgresql://postgres:5432/${POSTGRES_DB}}
+      - DB_USERNAME=${POSTGRES_USER}
+      - DB_PASSWORD=${POSTGRES_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - OPTIMIZER_SERVICE_URL=${OPTIMIZER_SERVICE_URL:-http://optimizer:8000}
       - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-*}
+      - CRAWLER_USER_AGENT=${CRAWLER_USER_AGENT}
+      - CRAWLER_CONNECT_TIMEOUT_MS=${CRAWLER_CONNECT_TIMEOUT_MS:-6000}
+      - CRAWLER_READ_TIMEOUT_MS=${CRAWLER_READ_TIMEOUT_MS:-8000}
+      - CRAWLER_DEFAULT_MAX_PAGES=${CRAWLER_DEFAULT_MAX_PAGES:-30}
+      - CRAWLER_DEFAULT_MAX_DEPTH=${CRAWLER_DEFAULT_MAX_DEPTH:-3}
+      - CRAWLER_MAX_ALLOWED_PAGES=${CRAWLER_MAX_ALLOWED_PAGES:-200}
+      - CRAWLER_MAX_ALLOWED_DEPTH=${CRAWLER_MAX_ALLOWED_DEPTH:-8}
     networks:
       - webreform-network
     healthcheck:
@@ -91,14 +99,16 @@ services:
       dockerfile: Dockerfile
       args:
         VITE_API_URL: ${VITE_API_URL:-/api}
+        VITE_ACCESS_CODE: ${VITE_ACCESS_CODE}
     container_name: webreform-frontend
     restart: unless-stopped
     ports:
       - "${FRONTEND_PORT:-3000}:3000"
     environment:
-      - BACKEND_URL=http://backend:8080
-      - PORT=3000
+      - BACKEND_URL=${BACKEND_URL:-http://backend:8080}
+      - PORT=${FRONTEND_PORT:-3000}
       - HOST=0.0.0.0
+      - VITE_ACCESS_CODE=${VITE_ACCESS_CODE}
     depends_on:
       backend:
         condition: service_healthy
@@ -117,4 +127,3 @@ networks:
 
 volumes:
   postgres_data:
-    name: webreform_postgres_data

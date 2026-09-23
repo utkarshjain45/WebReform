@@ -18,6 +18,7 @@ import { api, ApiError } from "@/lib/api";
 import type { Website, FitnessWeights, OptimizationRun } from "@/types";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { LoadingState } from "@/components/ui/LoadingState";
+import { useAccessGuard } from "@/context/AccessGuardContext";
 
 type PresetId = "conversions" | "content" | "gentle" | "aggressive" | "custom";
 type SpeedMode = "fast" | "balanced" | "deep";
@@ -114,6 +115,7 @@ export const OptimizationPage: React.FC = () => {
   const [selectedWebsiteId, setSelectedWebsiteId] = useState<number>(
     preselectedWebsiteId ? Number(preselectedWebsiteId) : 0
   );
+  const { requireAccess } = useAccessGuard();
 
   // Preset & Quality Mode State
   const [selectedPreset, setSelectedPreset] = useState<PresetId>("conversions");
@@ -242,7 +244,7 @@ export const OptimizationPage: React.FC = () => {
     setRandomSeed(Math.floor(Math.random() * 10000));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setFormError(null);
 
@@ -258,28 +260,30 @@ export const OptimizationPage: React.FC = () => {
       return;
     }
 
-    setSubmitting(true);
-    try {
-      const run = await api.runOptimization({
-        websiteId: selectedWebsiteId,
-        populationSize,
-        iterations,
-        randomSeed,
-        maxDepth,
-        maxChildren,
-        weights,
-      });
+    requireAccess(async () => {
+      setSubmitting(true);
+      try {
+        const run = await api.runOptimization({
+          websiteId: selectedWebsiteId,
+          populationSize,
+          iterations,
+          randomSeed,
+          maxDepth,
+          maxChildren,
+          weights,
+        });
 
-      navigate(`/optimize/results/${run.id}`);
-    } catch (err) {
-      if (err instanceof ApiError) {
-        setFormError(err.message);
-      } else {
-        setFormError("Failed to initiate structure reform run.");
+        navigate(`/optimize/results/${run.id}`);
+      } catch (err) {
+        if (err instanceof ApiError) {
+          setFormError(err.message);
+        } else {
+          setFormError("Failed to initiate structure reform run.");
+        }
+      } finally {
+        setSubmitting(false);
       }
-    } finally {
-      setSubmitting(false);
-    }
+    });
   };
 
   if (loading) {

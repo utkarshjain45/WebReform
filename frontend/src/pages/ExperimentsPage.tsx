@@ -20,8 +20,11 @@ import { ErrorState } from "@/components/ui/ErrorState";
 import { LoadingState } from "@/components/ui/LoadingState";
 import { StatCard } from "@/components/ui/StatCard";
 
+import { useAccessGuard } from "@/context/AccessGuardContext";
+
 export const ExperimentsPage: React.FC = () => {
   const navigate = useNavigate();
+  const { requireAccess } = useAccessGuard();
   const [experiments, setExperiments] = useState<ExperimentSummary[]>([]);
   const [websites, setWebsites] = useState<Website[]>([]);
   const [selectedWebsiteId, setSelectedWebsiteId] = useState<number | undefined>(undefined);
@@ -65,24 +68,26 @@ export const ExperimentsPage: React.FC = () => {
     fetchData();
   }, []);
 
-  const handleRunSuite = async (suiteType: CreateExperimentRequest["suiteType"]) => {
-    setRunningSuite(suiteType);
-    setError(null);
-    try {
-      const result = await api.runExperimentSuite({
-        suiteType,
-        websiteId: suiteType === "WEBSITE_SIZE" ? undefined : selectedWebsiteId,
-      });
-      navigate(`/experiments/${result.id}`);
-    } catch (err) {
-      if (err instanceof ApiError) {
-        setError(err);
-      } else {
-        setError(new ApiError("Failed to execute benchmark experiment suite."));
+  const handleRunSuite = (suiteType: CreateExperimentRequest["suiteType"]) => {
+    requireAccess(async () => {
+      setRunningSuite(suiteType);
+      setError(null);
+      try {
+        const result = await api.runExperimentSuite({
+          suiteType,
+          websiteId: suiteType === "WEBSITE_SIZE" ? undefined : selectedWebsiteId,
+        });
+        navigate(`/experiments/${result.id}`);
+      } catch (err) {
+        if (err instanceof ApiError) {
+          setError(err);
+        } else {
+          setError(new ApiError("Failed to execute benchmark experiment suite."));
+        }
+      } finally {
+        setRunningSuite(null);
       }
-    } finally {
-      setRunningSuite(null);
-    }
+    });
   };
 
   const completedCount = experiments.filter((e) => e.status === "COMPLETED").length;

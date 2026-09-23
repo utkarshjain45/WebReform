@@ -14,7 +14,9 @@ COPY . .
 
 # Inject build-time environment variables for Vite bundle
 ARG VITE_API_URL=/api
+ARG VITE_ACCESS_CODE
 ENV VITE_API_URL=${VITE_API_URL}
+ENV VITE_ACCESS_CODE=${VITE_ACCESS_CODE}
 
 RUN npm run build
 

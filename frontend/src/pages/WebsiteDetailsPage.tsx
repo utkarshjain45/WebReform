@@ -24,8 +24,10 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { LoadingState } from "@/components/ui/LoadingState";
 import { StatCard } from "@/components/ui/StatCard";
+import { useAccessGuard } from "@/context/AccessGuardContext";
 
 export const WebsiteDetailsPage: React.FC = () => {
+  const { requireAccess } = useAccessGuard();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const websiteId = Number(id);
@@ -43,6 +45,11 @@ export const WebsiteDetailsPage: React.FC = () => {
   const [crawling, setCrawling] = useState<boolean>(false);
   const [crawlStatus, setCrawlStatus] = useState<CrawlJobResponse | null>(null);
   const [crawlError, setCrawlError] = useState<string | null>(null);
+
+  // Delete modal state
+  const [deleteModalOpen, setDeleteModalOpen] = useState<boolean>(false);
+  const [deleting, setDeleting] = useState<boolean>(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const fetchData = async () => {
     if (!websiteId || isNaN(websiteId)) return;
@@ -72,23 +79,25 @@ export const WebsiteDetailsPage: React.FC = () => {
     fetchData();
   }, [websiteId]);
 
-  const handleStartCrawl = async (e: React.FormEvent) => {
+  const handleStartCrawl = (e: React.FormEvent) => {
     e.preventDefault();
-    setCrawling(true);
-    setCrawlError(null);
-    try {
-      const job = await api.startCrawl(websiteId, { maxPages, maxDepth });
-      setCrawlStatus(job);
-      // Poll crawl status
-      pollCrawlStatus(job.jobId);
-    } catch (err) {
-      if (err instanceof ApiError) {
-        setCrawlError(err.message);
-      } else {
-        setCrawlError("Failed to initiate website crawl.");
+    requireAccess(async () => {
+      setCrawling(true);
+      setCrawlError(null);
+      try {
+        const job = await api.startCrawl(websiteId, { maxPages, maxDepth });
+        setCrawlStatus(job);
+        // Poll crawl status
+        pollCrawlStatus(job.jobId);
+      } catch (err) {
+        if (err instanceof ApiError) {
+          setCrawlError(err.message);
+        } else {
+          setCrawlError("Failed to initiate website crawl.");
+        }
+        setCrawling(false);
       }
-      setCrawling(false);
-    }
+    });
   };
 
   const pollCrawlStatus = (jobId: string) => {
@@ -108,17 +117,20 @@ export const WebsiteDetailsPage: React.FC = () => {
     }, 1500);
   };
 
-  const handleDeleteWebsite = async () => {
+  const confirmDeleteWebsite = () => {
     if (!website) return;
-    if (!window.confirm(`Are you sure you want to delete "${website.name}"? All crawled pages and optimization runs for this website will be permanently removed.`)) {
-      return;
-    }
-    try {
-      await api.deleteWebsite(website.id);
-      navigate("/websites");
-    } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to delete website.");
-    }
+    requireAccess(async () => {
+      setDeleting(true);
+      setDeleteError(null);
+      try {
+        await api.deleteWebsite(website.id);
+        navigate("/websites");
+      } catch (err) {
+        console.error("Failed to delete website:", err);
+        setDeleteError(err instanceof Error ? err.message : "Failed to delete website.");
+        setDeleting(false);
+      }
+    });
   };
 
   if (loading) {
@@ -220,12 +232,20 @@ export const WebsiteDetailsPage: React.FC = () => {
             Reform Navigation
           </Link>
           <button
-            onClick={handleDeleteWebsite}
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-rose-200 bg-rose-50/60 text-xs font-semibold text-rose-600 hover:bg-rose-100 hover:text-rose-700 shadow-sm transition-colors"
+            onClick={() => {
+              setDeleteError(null);
+              setDeleteModalOpen(true);
+            }}
+            disabled={deleting}
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-rose-200 bg-rose-50/60 text-xs font-semibold text-rose-600 hover:bg-rose-100 hover:text-rose-700 shadow-sm transition-colors cursor-pointer disabled:opacity-50"
             title="Delete Website"
           >
-            <Trash2 className="w-3.5 h-3.5" />
-            Delete
+            {deleting ? (
+              <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <Trash2 className="w-3.5 h-3.5" />
+            )}
+            {deleting ? "Deleting..." : "Delete"}
           </button>
         </div>
       </div>
@@ -593,6 +613,63 @@ export const WebsiteDetailsPage: React.FC = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteModalOpen && website && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 animate-fade-in">
+          <div className="w-full max-w-md rounded-2xl border border-rose-100 bg-white p-6 shadow-2xl space-y-4 animate-scale-in">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-rose-50 border border-rose-200 text-rose-600 flex items-center justify-center">
+                  <Trash2 className="w-4 h-4" />
+                </div>
+                Delete Target Website
+              </h2>
+              <button
+                onClick={() => setDeleteModalOpen(false)}
+                disabled={deleting}
+                className="rounded-lg p-1 text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer disabled:opacity-50"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {deleteError && (
+              <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-xs text-rose-700">
+                {deleteError}
+              </div>
+            )}
+
+            <p className="text-sm text-slate-600 leading-relaxed">
+              Are you sure you want to permanently delete{" "}
+              <span className="font-semibold text-slate-900">
+                &ldquo;{website.name}&rdquo;
+              </span>
+              ? All {pages.length} crawled pages, link topology graphs, and navigation reform runs for this website will be removed permanently.
+            </p>
+
+            <div className="flex justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setDeleteModalOpen(false)}
+                disabled={deleting}
+                className="px-4 py-2 rounded-lg border border-slate-200 bg-white text-xs font-medium text-slate-700 hover:bg-slate-50 transition-colors shadow-sm cursor-pointer disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={confirmDeleteWebsite}
+                disabled={deleting}
+                className="px-4 py-2 rounded-lg bg-rose-600 text-xs font-semibold text-white hover:bg-rose-500 transition-colors disabled:opacity-50 inline-flex items-center gap-2 shadow-sm cursor-pointer"
+              >
+                {deleting && <RefreshCw className="w-3.5 h-3.5 animate-spin" />}
+                {deleting ? "Deleting..." : "Delete Website"}
+              </button>
+            </div>
           </div>
         </div>
       )}
