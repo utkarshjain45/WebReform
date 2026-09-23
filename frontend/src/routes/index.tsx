@@ -1,6 +1,7 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import { AppShell } from "@/components/layout/AppShell";
 import { LandingPage } from "@/pages/LandingPage";
+import { ResearchPage } from "@/pages/ResearchPage";
 import { DashboardPage } from "@/pages/DashboardPage";
 import { WebsitesPage } from "@/pages/WebsitesPage";
 import { WebsiteDetailsPage } from "@/pages/WebsiteDetailsPage";
@@ -17,6 +18,11 @@ export const router = createBrowserRouter([
   {
     path: "/",
     element: <LandingPage />,
+    errorElement: <NotFoundPage />,
+  },
+  {
+    path: "/research",
+    element: <ResearchPage />,
     errorElement: <NotFoundPage />,
   },
   {

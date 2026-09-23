@@ -157,13 +157,13 @@ export const DashboardPage: React.FC = () => {
   return (
     <div className="space-y-10 max-w-6xl mx-auto pb-12">
       {/* Hero: 1-Click Guided Action */}
-      <div className="pt-2 pb-6 border-b border-slate-200/80">
+      <div className="pt-2 pb-6 border-b border-sand-200/90">
         <div className="max-w-2xl space-y-2">
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
+          <h1 className="text-2xl sm:text-3xl font-display font-extrabold tracking-tight text-ink-900">
             Simplify your website navigation.
           </h1>
-          <p className="text-sm text-slate-600 leading-relaxed">
-            Enter your website to spot buried pages, unclutter menus, and bring customers to key pages in 2 clicks.
+          <p className="text-sm text-ink-600 leading-relaxed">
+            Enter your website to spot buried pages, unclutter menus, and bring visitors to key destinations effortlessly.
           </p>
         </div>
 
@@ -171,8 +171,8 @@ export const DashboardPage: React.FC = () => {
         <form onSubmit={handleQuickReform} className="mt-6 max-w-2xl">
           <div className="flex flex-col sm:flex-row items-stretch gap-2">
             <div className="relative flex-1">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                <Globe className="w-4 h-4" />
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-sand-500">
+                <Globe className="w-4 h-4 text-coral-500" />
               </div>
               <input
                 type="text"
@@ -183,13 +183,13 @@ export const DashboardPage: React.FC = () => {
                   setQuickError(null);
                 }}
                 disabled={quickStep !== "idle"}
-                className="w-full pl-10 pr-4 py-3 text-sm bg-white border border-slate-300 rounded-xl focus:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-100 transition-all shadow-2xs"
+                className="w-full pl-10 pr-4 py-3 text-sm bg-white border border-sand-300 rounded-2xl focus:border-coral-500 focus:outline-none focus:ring-2 focus:ring-coral-500/10 transition-all shadow-card-sm text-ink-900 font-medium"
               />
             </div>
             <button
               type="submit"
               disabled={quickStep !== "idle" || !quickUrl.trim()}
-              className="px-6 py-3 bg-indigo-600 text-white text-sm font-semibold rounded-xl hover:bg-indigo-500 disabled:opacity-50 transition-all inline-flex items-center justify-center gap-2 shadow-sm shrink-0 cursor-pointer"
+              className="px-6 py-3 bg-coral-500 text-white text-sm font-bold rounded-2xl hover:bg-coral-600 shadow-coral-glow disabled:opacity-50 transition-all inline-flex items-center justify-center gap-2 shrink-0 cursor-pointer active:scale-95"
             >
               {quickStep === "idle" && (
                 <>
@@ -219,19 +219,19 @@ export const DashboardPage: React.FC = () => {
           </div>
 
           {quickError && (
-            <div className="mt-2.5 flex items-center gap-1.5 text-xs text-rose-600 font-medium">
+            <div className="mt-2.5 flex items-center gap-1.5 text-xs text-coral-600 font-medium">
               <AlertCircle className="w-3.5 h-3.5 shrink-0" />
               <span>{quickError}</span>
             </div>
           )}
 
           {quickStep !== "idle" && (
-            <div className="mt-3 p-3 bg-indigo-50/70 border border-indigo-100 rounded-xl text-xs text-indigo-900 flex items-center gap-3">
-              <Sparkles className="w-4 h-4 text-indigo-600 animate-pulse shrink-0" />
+            <div className="mt-3 p-3 bg-sand-100 border border-sand-200 rounded-xl text-xs text-ink-800 flex items-center gap-3 font-mono">
+              <Sparkles className="w-4 h-4 text-coral-500 animate-pulse shrink-0" />
               <span>
                 {quickStep === "registering" && "Checking website domain and accessibility..."}
                 {quickStep === "crawling" && "Discovering menu links and measuring click depths..."}
-                {quickStep === "optimizing" && "Searching thousands of layouts to find the cleanest 2-click hierarchy..."}
+                {quickStep === "optimizing" && "Searching thousands of layouts to find the optimal navigation hierarchy..."}
               </span>
             </div>
           )}
@@ -250,56 +250,56 @@ export const DashboardPage: React.FC = () => {
       {/* Human Metrics Bar (Clean, Unboxed) */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-6 py-2">
         <div>
-          <span className="text-xs font-medium text-slate-500 block mb-1">Websites Monitored</span>
+          <span className="text-xs font-mono font-semibold uppercase text-ink-400 block mb-1">Websites Monitored</span>
           <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-slate-900">{websites.length}</span>
-            <span className="text-xs text-slate-400">domains</span>
+            <span className="text-2xl font-display font-extrabold text-ink-900">{websites.length}</span>
+            <span className="text-xs text-ink-400">domains</span>
           </div>
         </div>
         <div>
-          <span className="text-xs font-medium text-slate-500 block mb-1">Target Click Depth</span>
+          <span className="text-xs font-mono font-semibold uppercase text-ink-400 block mb-1">Navigation Target</span>
           <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-emerald-600">2 Clicks</span>
-            <span className="text-xs text-slate-400">max recommendation</span>
+            <span className="text-2xl font-display font-extrabold text-mint-600">Optimized</span>
+            <span className="text-xs text-ink-400">streamlined paths</span>
           </div>
         </div>
         <div>
-          <span className="text-xs font-medium text-slate-500 block mb-1">Avg. Friction Reduced</span>
+          <span className="text-xs font-mono font-semibold uppercase text-ink-400 block mb-1">Avg. Friction Reduced</span>
           <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-indigo-600">
+            <span className="text-2xl font-display font-extrabold text-coral-600">
               {completedRuns.length > 0 ? `+${avgGain}%` : "—"}
             </span>
-            <span className="text-xs text-slate-400">faster access</span>
+            <span className="text-xs text-ink-400">faster access</span>
           </div>
         </div>
         <div>
-          <span className="text-xs font-medium text-slate-500 block mb-1">Reforms Completed</span>
+          <span className="text-xs font-mono font-semibold uppercase text-ink-400 block mb-1">Reforms Completed</span>
           <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-slate-900">{completedRuns.length}</span>
-            <span className="text-xs text-slate-400">layouts generated</span>
+            <span className="text-2xl font-display font-extrabold text-ink-900">{completedRuns.length}</span>
+            <span className="text-xs text-ink-400">layouts generated</span>
           </div>
         </div>
       </div>
 
       {/* Main Section: Monitored Websites & Recent Activity */}
       <div className="space-y-6">
-        <div className="flex items-center justify-between border-b border-slate-200/80 pb-3">
+        <div className="flex items-center justify-between border-b border-sand-200/90 pb-3">
           <div>
-            <h2 className="text-base font-semibold text-slate-900">Your Websites</h2>
-            <p className="text-xs text-slate-500">Domains and active menu reform plans</p>
+            <h2 className="text-base font-display font-bold text-ink-900">Your Websites</h2>
+            <p className="text-xs text-ink-500">Domains and active menu reform plans</p>
           </div>
           <div className="flex items-center gap-3">
             <button
               onClick={fetchData}
               disabled={loading}
-              className="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
+              className="p-1.5 text-ink-400 hover:text-ink-800 rounded-lg hover:bg-sand-100 transition-colors cursor-pointer"
               title="Refresh"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
             </button>
             <Link
               to="/websites"
-              className="text-xs font-semibold text-indigo-600 hover:text-indigo-800"
+              className="text-xs font-bold text-coral-600 hover:text-coral-700 font-mono"
             >
               All Websites &rarr;
             </Link>
@@ -309,17 +309,17 @@ export const DashboardPage: React.FC = () => {
         {loading ? (
           <LoadingState message="Loading your websites..." rows={2} />
         ) : websites.length === 0 ? (
-          <div className="py-12 text-center text-slate-500 space-y-3">
-            <Globe className="w-10 h-10 mx-auto text-slate-300" />
+          <div className="py-12 text-center text-ink-400 space-y-3">
+            <Globe className="w-10 h-10 mx-auto text-sand-400" />
             <div className="space-y-1">
-              <h3 className="text-sm font-semibold text-slate-800">No websites added yet</h3>
-              <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                Paste your website URL in the box above to start your first 2-click navigation reform.
+              <h3 className="text-sm font-display font-bold text-ink-800">No websites added yet</h3>
+              <p className="text-xs text-ink-500 max-w-sm mx-auto">
+                Paste your website URL in the box above to start your website structure reform.
               </p>
             </div>
           </div>
         ) : (
-          <div className="divide-y divide-slate-100 border-b border-slate-100">
+          <div className="divide-y divide-sand-200 border-b border-sand-200">
             {websites.map((site) => {
               const siteRuns = runs.filter((r) => r.websiteId === site.id && r.status === "COMPLETED");
               const latestRun = siteRuns[0];
@@ -327,24 +327,24 @@ export const DashboardPage: React.FC = () => {
               return (
                 <div
                   key={site.id}
-                  className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-slate-50/50 px-2 rounded-lg transition-colors"
+                  className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-white/60 px-3 rounded-2xl transition-colors border border-transparent hover:border-sand-200"
                 >
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <span className="font-semibold text-sm text-slate-900">{site.name}</span>
+                      <span className="font-bold text-sm text-ink-900">{site.name}</span>
                       {latestRun && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                          <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                          Reformed
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-mint-50 text-mint-700 border border-mint-500/25">
+                          <CheckCircle2 className="w-3 h-3 text-mint-600" />
+                          Optimized
                         </span>
                       )}
                     </div>
-                    <div className="flex items-center gap-4 text-xs text-slate-500 font-mono">
+                    <div className="flex items-center gap-4 text-xs text-ink-500 font-mono">
                       <a
                         href={site.baseUrl}
                         target="_blank"
                         rel="noreferrer"
-                        className="hover:text-indigo-600 inline-flex items-center gap-1"
+                        className="hover:text-coral-600 inline-flex items-center gap-1"
                       >
                         {site.baseUrl}
                         <ExternalLink className="w-2.5 h-2.5 opacity-50" />
@@ -358,7 +358,7 @@ export const DashboardPage: React.FC = () => {
                     {latestRun ? (
                       <Link
                         to={`/optimize/results/${latestRun.id}`}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 text-xs font-semibold text-white hover:bg-emerald-500 shadow-sm transition-colors"
+                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-mint-500 text-xs font-bold text-white hover:bg-mint-600 shadow-sm transition-colors cursor-pointer"
                       >
                         <Sparkles className="w-3.5 h-3.5" />
                         <span>View Results</span>
@@ -366,7 +366,7 @@ export const DashboardPage: React.FC = () => {
                     ) : (
                       <Link
                         to={`/optimize?websiteId=${site.id}`}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 text-xs font-semibold text-white hover:bg-indigo-500 shadow-sm transition-colors"
+                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-coral-500 text-xs font-bold text-white hover:bg-coral-600 shadow-coral-glow transition-colors cursor-pointer"
                       >
                         <Zap className="w-3.5 h-3.5" />
                         <span>Simplify Menus</span>
@@ -374,7 +374,7 @@ export const DashboardPage: React.FC = () => {
                     )}
                     <Link
                       to={`/websites/${site.id}`}
-                      className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+                      className="px-3.5 py-1.5 rounded-full border border-sand-300 bg-sand-100 text-xs font-semibold text-ink-800 hover:bg-sand-200 transition-colors"
                     >
                       Details
                     </Link>
