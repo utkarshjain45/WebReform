@@ -26,10 +26,14 @@ public class WebCorsConfig {
                     registration.allowedOriginPatterns("*");
                 } else {
                     String[] origins = allowedOrigins.split(",");
-                    for (int i = 0; i < origins.length; i++) {
-                        origins[i] = origins[i].trim();
+                    java.util.List<String> cleaned = new java.util.ArrayList<>();
+                    for (String o : origins) {
+                        String s = o.trim().replaceAll("/+$", "");
+                        if (!s.isEmpty()) {
+                            cleaned.add(s);
+                        }
                     }
-                    registration.allowedOrigins(origins);
+                    registration.allowedOrigins(cleaned.toArray(new String[0]));
                 }
             }
         };
