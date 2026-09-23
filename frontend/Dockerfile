@@ -11,6 +11,11 @@ RUN npm ci
 
 # Build static bundle
 COPY . .
+
+# Inject build-time environment variables for Vite bundle
+ARG VITE_API_URL=/api
+ENV VITE_API_URL=${VITE_API_URL}
+
 RUN npm run build
 
 # Expose port for the web application

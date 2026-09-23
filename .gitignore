@@ -13,8 +13,11 @@ Thumbs.db
 __pycache__/
 *.py[cod]
 venv/
-ENV/
+# Environment & Secrets
 .env
+.env*
+*.env
+*.env.*
 
 # Logs
 *.log
