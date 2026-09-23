@@ -25,9 +25,9 @@ const navItems: NavItem[] = [
 
 export const Sidebar: React.FC = () => {
   return (
-    <aside className="w-64 flex-shrink-0 border-r border-slate-200/80 bg-white p-4 hidden md:flex flex-col justify-between shadow-[1px_0_2px_rgba(0,0,0,0.02)] h-full min-h-0">
+    <aside className="w-64 flex-shrink-0 border-r border-sand-200/90 bg-[#FDFBF9] p-4 hidden md:flex flex-col justify-between shadow-card-sm h-full min-h-0">
       <div className="space-y-1 overflow-y-auto min-h-0 pr-0.5">
-        <div className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+        <div className="px-3 py-2 text-[11px] font-mono font-bold uppercase tracking-wider text-ink-400">
           Platform Workspace
         </div>
         {navItems.map((item) => (
@@ -37,10 +37,10 @@ export const Sidebar: React.FC = () => {
             end={item.href === "/dashboard"}
             className={({ isActive }) =>
               cn(
-                "group flex items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium transition-all",
+                "group flex items-center justify-between rounded-xl px-3 py-2.5 text-xs font-semibold transition-all",
                 isActive
-                  ? "bg-indigo-50 text-indigo-700 font-semibold border border-indigo-100/80 shadow-xs"
-                  : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                  ? "bg-white text-coral-600 font-bold border border-coral-200/80 shadow-sand-pill"
+                  : "text-ink-600 hover:bg-sand-100 hover:text-ink-900"
               )
             }
           >
@@ -52,17 +52,18 @@ export const Sidebar: React.FC = () => {
         ))}
       </div>
 
-      <div className="pt-3 border-t border-slate-200/80 flex-shrink-0">
-        <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200/60 shadow-xs">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600 text-white font-bold text-xs shadow-xs">
+      <div className="pt-3 border-t border-sand-200/90 flex-shrink-0">
+        <div className="flex items-center gap-3 px-3 py-2.5 rounded-2xl bg-white border border-sand-200 shadow-xs">
+          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-ink-900 text-white font-bold text-xs shadow-xs">
             W
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-xs font-semibold text-slate-900 truncate">WebReform</p>
-            <p className="text-[10px] text-slate-500 truncate">Website Reform Engine</p>
+            <p className="text-xs font-bold text-ink-900 truncate">WebReform</p>
+            <p className="text-[10px] text-coral-600 font-mono truncate">Dual-Engine Active</p>
           </div>
         </div>
       </div>
     </aside>
   );
 };
+
