@@ -33,7 +33,16 @@ export class ApiError extends Error {
 }
 
 class ApiClient {
-  private baseUrl = (import.meta.env.VITE_API_URL as string) || "/api";
+  private baseUrl = (() => {
+    let raw = (import.meta.env.VITE_API_URL as string) || (import.meta.env.VITE_BACKEND_URL as string) || "/api";
+    // Strip trailing slashes
+    let url = raw.trim().replace(/\/+$/, "");
+    // If full domain given without /api, append /api because backend endpoints are under /api/
+    if (url.startsWith("http") && !url.endsWith("/api")) {
+      url = `${url}/api`;
+    }
+    return url;
+  })();
 
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
