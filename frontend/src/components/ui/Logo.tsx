@@ -33,82 +33,69 @@ export const Logo: React.FC<LogoProps> = ({
 
   return (
     <div className={`inline-flex items-center gap-2.5 select-none ${className}`}>
-      {/* Custom WebReform Emblem */}
-      <div className={`relative flex items-center justify-center shrink-0 ${current.box} transition-transform group-hover:scale-105 duration-200`}>
+      {/* Editorial WebReform Symbol */}
+      <div
+        className={`relative flex items-center justify-center shrink-0 ${current.box} transition-transform duration-200 group-hover:scale-105`}
+      >
         <svg
           width={current.svg}
           height={current.svg}
           viewBox="0 0 36 36"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          className="drop-shadow-sm"
+          className="drop-shadow-xs"
         >
-          <defs>
-            <linearGradient id="wr-grad-primary" x1="2" y1="2" x2="34" y2="34" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stopColor="#4F46E5" />
-              <stop offset="55%" stopColor="#7C3AED" />
-              <stop offset="100%" stopColor="#0EA5E9" />
-            </linearGradient>
-            <linearGradient id="wr-grad-nodes" x1="9" y1="8" x2="27" y2="28" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stopColor="#FFFFFF" />
-              <stop offset="100%" stopColor="#E0E7FF" />
-            </linearGradient>
-          </defs>
-
-          {/* Squircle Background */}
+          {/* Subtle warm container with delicate border */}
           <rect
-            x="1.5"
-            y="1.5"
-            width="33"
-            height="33"
-            rx="8.5"
-            fill="url(#wr-grad-primary)"
+            x="1"
+            y="1"
+            width="34"
+            height="34"
+            rx="10"
+            fill="#121214"
           />
 
-          {/* Top Hierarchy Lines from Root */}
+          {/* Tree Structure Links */}
           <path
-            d="M18 8.5 L9.5 17.5 M18 8.5 L26.5 17.5"
+            d="M18 9 L10 18 M18 9 L26 18"
             stroke="#FFFFFF"
-            strokeWidth="2.2"
+            strokeWidth="1.8"
             strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeOpacity="0.85"
+            strokeOpacity="0.4"
           />
-
-          {/* Dynamic 'W' Reform Topology Path */}
           <path
-            d="M9.5 17.5 L14 26.5 L18 19 L22 26.5 L26.5 17.5"
+            d="M10 18 L14 27 M10 18 L18 20 M26 18 L22 27"
             stroke="#FFFFFF"
-            strokeWidth="2.4"
+            strokeWidth="1.8"
             strokeLinecap="round"
-            strokeLinejoin="round"
+            strokeOpacity="0.3"
           />
 
-          {/* Root Apex Node */}
-          <circle cx="18" cy="8.5" r="3" fill="url(#wr-grad-nodes)" />
+          {/* Root Node - Coral Accent (#FF3856) */}
+          <circle cx="18" cy="9" r="3.2" fill="#FF3856" />
 
-          {/* Intermediate Category Nodes */}
-          <circle cx="9.5" cy="17.5" r="2.5" fill="#38BDF8" />
-          <circle cx="26.5" cy="17.5" r="2.5" fill="#38BDF8" />
+          {/* Layer 1 Nodes */}
+          <circle cx="10" cy="18" r="2.4" fill="#FFFFFF" />
+          <circle cx="26" cy="18" r="2.4" fill="#FFFFFF" />
 
-          {/* Center Convergence Point */}
-          <circle cx="18" cy="19" r="2.2" fill="#FFFFFF" />
-
-          {/* Bottom Target Nodes */}
-          <circle cx="14" cy="26.5" r="2.2" fill="#FFFFFF" />
-          <circle cx="22" cy="26.5" r="2.2" fill="#FFFFFF" />
+          {/* 2-Click Target Nodes */}
+          <circle cx="14" cy="27" r="2" fill="#10B981" />
+          <circle cx="22" cy="27" r="2" fill="#10B981" />
+          <circle cx="18" cy="20" r="1.8" fill="#F4F0EB" />
         </svg>
       </div>
 
-      {/* Typography */}
+      {/* Modern Editorial Typography */}
       {showText && (
-        <span className={`font-black tracking-tight ${current.text} leading-none flex items-center`}>
-          <span className="text-slate-900">Web</span>
-          <span className="bg-gradient-to-r from-indigo-600 via-violet-600 to-indigo-800 bg-clip-text text-transparent">
-            Reform
-          </span>
+        <span
+          className={`font-display font-extrabold tracking-tight ${current.text} leading-none flex items-center gap-0.5 text-ink-900`}
+        >
+          <span>Web</span>
+          <span className="text-coral-500 font-black">Reform</span>
+          <span className="h-1.5 w-1.5 rounded-full bg-coral-500 ml-0.5" />
         </span>
       )}
     </div>
   );
 };
+
